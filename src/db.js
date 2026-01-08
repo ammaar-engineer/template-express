@@ -45,32 +45,30 @@ class pool {
 
 
 // MongoDB Singleton
-class mongoPool {
-    url
-    client
-    koneksi = false
-    database
-    
-    constructor (url, database) {
+class mongo {    
+    url 
+    database_name
+    mongoClient
+
+    constructor({url, database}) {        
         this.url = url
-        this.client = new MongoClient(url)
-        this.database = database
+        this.database_name = database
+        this.mongoClient = new MongoClient(url)
+        this.db = null
     }
-    getDb = async () => {
-        let databasepool
-        const isConnect = this.koneksi
-        if (!isConnect) {
-            await this.client.connect()
-            console.log(`Databases connected`)
-            databasepool = this.client.db(this.database)
-            this.koneksi = true            
+    getdb = async () => {
+        if (!this.db) {
+            await this.mongoClient.connect()
+            this.db = this.mongoClient.db(this.database_name)
         }
-        return databasepool
-        
+        return this.db
     }
 }
 
 // MySQL
 export const db = new pool()
 // MongoDB
-export const {getDb} = new mongoPool('mongodb://localhost:27017', 'quantamanager')
+export const {getDb} = new mongo({
+    url: 'mongodb://localhost:27017',
+    database: 'quantamanager'
+})
